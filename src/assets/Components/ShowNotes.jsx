@@ -3,10 +3,14 @@ import { NavBar } from "./NavBar";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowUp } from "react-icons/io";
 import { ShowCategory } from "./AddingNote";
+import { FaTrashRestore } from "react-icons/fa";
 
 function ShowNotes() {
   const [show, setShow] = useState(false);
   const [category, setCategory] = useState("");
+  const [noteDatabase, setNoteDatabase] = useState(
+    JSON.parse(localStorage.getItem("noteDatabase")) || {}
+  );
   return (
     <>
       <NavBar />
@@ -14,7 +18,12 @@ function ShowNotes() {
         <div className="main-container">
           <div className="shownotes-content">
             <CatchCategory setShow={setShow} setCategory={setCategory} />
-            <CategoryNotes show={show} category={category} />
+            <CategoryNotes
+              show={show}
+              category={category}
+              noteDatabase={noteDatabase}
+              setNoteDatabase={setNoteDatabase}
+            />
             <ShowCategory />
           </div>
         </div>
@@ -23,7 +32,7 @@ function ShowNotes() {
   );
 }
 
-//c1 Catch the Category by field
+// com_ Catch the Category by field
 function CatchCategory({ setShow, setCategory }) {
   return (
     <>
@@ -51,47 +60,120 @@ function CatchCategory({ setShow, setCategory }) {
   );
 }
 
-//c2 show Notes related to category
-function CategoryNotes({ show, category }) {
-  const noteDatabase = JSON.parse(localStorage.getItem("noteDatabase")) || {};
+// com_ Show Notes related to category
+function CategoryNotes({ show, category, noteDatabase, setNoteDatabase }) {
+  // Initialize state for all notes' visibility
+  const [shownoteStates, setShownoteStates] = useState({});
+
+  // Toggle visibility for a specific note
+  const toggleNote = (index) => {
+    setShownoteStates((prev) => ({
+      ...prev,
+      [index]: !prev[index], // { => index:!undefine => index:true=> 0:true} وكل مرة يضغط علي عنصر هيزود الاندكس بتاعه يعني مش بيعبي من الاول لا ده بيعبي حاله كل عنصر لما تدوس عليه وبعد كده يبقي يتحدث
+    }));
+  };
+
   if (!category || !noteDatabase[category]) {
-    return;
+    return null; // Return null for clarity
   }
+
   return (
     show && (
       <div className="category-notes">
-        <h1>{category}</h1>
+        <h1>
+          <RemoveCategory
+            noteDatabase={noteDatabase}
+            setNoteDatabase={setNoteDatabase}
+            category={category}
+          />
+          {category}
+        </h1>
         <ul>
-          {noteDatabase[category].map((e, i) => {
-            const [shownote, setshownote] = useState(false);
-            return (
-              <li key={i}>
-                <div className="note-title">
-                  <p>{e.title}</p>
-                  <NoteIcon shownote={shownote} setshownote={setshownote} />
-                </div>
-                {shownote ? <p>{e.note}</p> : ""}
-              </li>
-            );
-          })}
+          {noteDatabase[category].map((e, i) => (
+            <li key={i}>
+              <div className="note-title">
+                <RemoveItem
+                  noteDatabase={noteDatabase}
+                  setNoteDatabase={setNoteDatabase}
+                  category={category}
+                  index={i}
+                />
+                <p>{e.title}</p>
+                <NoteIcon
+                  shownote={shownoteStates[i] || false}
+                  setshownote={() => toggleNote(i)}
+                />
+              </div>
+              {shownoteStates[i] ? <p>{e.note}</p> : ""}
+            </li>
+          ))}
         </ul>
       </div>
     )
   );
 }
 
-//c2.1 icon in li
-function NoteIcon({ shownote, setshownote }) {
+// com_ contain Icon to remove item
+function RemoveItem({ noteDatabase, setNoteDatabase, category, index }) {
   return (
     <div
-      className="note-icon"
+      className="remove"
       onClick={() => {
-        setshownote(!shownote);
+        removeItem(noteDatabase, setNoteDatabase, category, index);
       }}
     >
+      <FaTrashRestore />
+    </div>
+  );
+}
+
+//com_ contain icon to remove category
+function RemoveCategory({ noteDatabase, setNoteDatabase, category }) {
+  return (
+    <div
+      className="remove"
+      onClick={() => removeCategory(noteDatabase, setNoteDatabase, category)}
+    >
+      <FaTrashRestore />
+    </div>
+  );
+}
+
+// com_ show Icon in li
+function NoteIcon({ shownote, setshownote }) {
+  return (
+    <div className="note-icon" onClick={setshownote}>
       {shownote ? <IoIosArrowUp /> : <IoIosArrowDown />}
     </div>
   );
+}
+
+/************************************** */
+/************** functions ***************/
+
+// function Remove item
+function removeItem(noteDatabase, setNoteDatabase, category, index) {
+  if (!Array.isArray(noteDatabase[category])) return;
+
+  const newNoteDatabase = { ...noteDatabase };
+  newNoteDatabase[category] = newNoteDatabase[category].filter(
+    (_, i) => i !== index
+  );
+
+  localStorage.setItem("noteDatabase", JSON.stringify(newNoteDatabase));
+  setNoteDatabase(newNoteDatabase);
+}
+
+// function Remove category
+function removeCategory(noteDatabase, setNoteDatabase, category) {
+  if (!noteDatabase[category]) return;
+
+  const newNoteDatabase = { ...noteDatabase };
+
+  delete newNoteDatabase[category];
+
+  localStorage.setItem("noteDatabase", JSON.stringify(newNoteDatabase));
+  setNoteDatabase(newNoteDatabase);
 }
 
 export { ShowNotes };

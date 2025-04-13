@@ -60,6 +60,9 @@ section {
   font-size: 20px;
 }
 
+.remove {
+  color: red;
+}
 /******End reusable components*********/
 
 /****start  NavBar components  ***/
@@ -180,6 +183,7 @@ nav {
   font-size: 30px;
   cursor: pointer;
 }
+
 .shownotes-content .category-notes ul li p {
   margin: 5px 0;
   color: var(--color-background-dark);
