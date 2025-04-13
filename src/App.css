@@ -125,7 +125,7 @@ nav {
   border-color: var(--color-soft-orange);
 }
 .adding-content form .field textarea {
-  height: 150px;
+  height: 300px;
 }
 
 .adding-content form input[type="submit"],
@@ -182,6 +182,10 @@ nav {
 }
 .shownotes-content .category-notes ul li p {
   margin: 5px 0;
+  color: var(--color-background-dark);
+  line-height: 30px;
+  word-wrap: break-word;
+  font-size: 20px;
 }
 
 /**** end showNotes page  ***/
