@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const links = [
   {
     name: "ضيف ملحوظه",
@@ -17,9 +19,9 @@ function NavBar() {
           <ul>
             {links.map((l, i) => {
               return (
-                <a key={i} href={l.path}>
+                <Link key={i} to={l.path}>
                   {l.name}
-                </a>
+                </Link>
               );
             })}
           </ul>
