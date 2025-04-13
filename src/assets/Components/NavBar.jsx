@@ -5,7 +5,7 @@ const links = [
   },
   {
     name: "مخزن الملاحظات",
-    path: "/show-notes",
+    path: "/shownotes",
   },
 ];
 

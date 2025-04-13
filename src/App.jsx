@@ -5,17 +5,20 @@ import {
   BrowserRouter,
   createBrowserRouter,
   createHashRouter,
-  RouterProvider,
+  HashRouter,
+  Route,
+  Routes,
 } from "react-router-dom";
 import "./App.css";
-const router = createHashRouter([
-  { path: "/", element: <AddingNote /> },
-  { path: "/show-notes", element: <ShowNotes /> },
-]);
 function App() {
   return (
     <main className="App">
-      <RouterProvider router={router} />
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<AddingNote />} />
+          <Route path="/shownotes" element={<ShowNotes />} />
+        </Routes>
+      </HashRouter>
     </main>
   );
 }
