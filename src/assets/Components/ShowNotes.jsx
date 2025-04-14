@@ -184,9 +184,14 @@ function removeCategory(noteDatabase, setNoteDatabase, category) {
 
 //function to determine the language if en write from ltr and if it arabic write rtl
 function testLanguage(sent_) {
-  if (/[a-z]/gi.test(sent_)) {
+  const hasEnglish = /[a-z]/i.test(sent_);
+  const hasArabic = /[\u0600-\u06FF]/.test(sent_);
+
+  if (hasEnglish && hasArabic) {
+    return "er";
+  } else if (hasEnglish) {
     return "en";
-  } else {
+  } else if (hasArabic) {
     return "ar";
   }
 }
