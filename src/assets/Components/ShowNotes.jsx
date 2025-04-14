@@ -182,8 +182,9 @@ function removeCategory(noteDatabase, setNoteDatabase, category) {
   setNoteDatabase(newNoteDatabase);
 }
 
-function testLanguage(sent) {
-  if (/[a-z]/gi.test(sent)) {
+//function to determine the language if en write from ltr and if it arabic write rtl
+function testLanguage(sent_) {
+  if (/[a-z]/gi.test(sent_)) {
     return "en";
   } else {
     return "ar";
