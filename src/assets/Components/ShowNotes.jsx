@@ -11,6 +11,8 @@ function ShowNotes() {
   const [noteDatabase, setNoteDatabase] = useState(
     JSON.parse(localStorage.getItem("noteDatabase")) || {}
   );
+  testLanguage("Shehab");
+  testLanguage("شهاب");
   return (
     <>
       <NavBar />
@@ -104,7 +106,11 @@ function CategoryNotes({ show, category, noteDatabase, setNoteDatabase }) {
                   setshownote={() => toggleNote(i)}
                 />
               </div>
-              {shownoteStates[i] ? <p>{e.note}</p> : ""}
+              {shownoteStates[i] ? (
+                <p className={`${testLanguage(e.note)}`}>{e.note}</p>
+              ) : (
+                ""
+              )}
             </li>
           ))}
         </ul>
@@ -174,6 +180,14 @@ function removeCategory(noteDatabase, setNoteDatabase, category) {
 
   localStorage.setItem("noteDatabase", JSON.stringify(newNoteDatabase));
   setNoteDatabase(newNoteDatabase);
+}
+
+function testLanguage(sent) {
+  if (/[a-z]/gi.test(sent)) {
+    return "en";
+  } else {
+    return "ar";
+  }
 }
 
 export { ShowNotes };
