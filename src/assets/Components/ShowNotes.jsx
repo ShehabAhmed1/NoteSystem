@@ -11,8 +11,6 @@ function ShowNotes() {
   const [noteDatabase, setNoteDatabase] = useState(
     JSON.parse(localStorage.getItem("noteDatabase")) || {}
   );
-  testLanguage("Shehab");
-  testLanguage("شهاب");
   return (
     <>
       <NavBar />
@@ -62,31 +60,31 @@ function CatchCategory({ setShow, setCategory }) {
   );
 }
 
-// com_ Show Notes related to category
 function CategoryNotes({ show, category, noteDatabase, setNoteDatabase }) {
-  // Initialize state for all notes' visibility
   const [shownoteStates, setShownoteStates] = useState({});
+  const [deletionState, setDeletionState] = useState({
+    show: false,
+    type: "",
+    index: null,
+  });
 
-  // Toggle visibility for a specific note
   const toggleNote = (index) => {
     setShownoteStates((prev) => ({
       ...prev,
-      [index]: !prev[index], // { => index:!undefine => index:true=> 0:true} وكل مرة يضغط علي عنصر هيزود الاندكس بتاعه يعني مش بيعبي من الاول لا ده بيعبي حاله كل عنصر لما تدوس عليه وبعد كده يبقي يتحدث
+      [index]: !prev[index],
     }));
   };
 
-  if (!category || !noteDatabase[category]) {
-    return null; // Return null for clarity
-  }
+  if (!category || !noteDatabase[category]) return null;
 
   return (
     show && (
       <div className="category-notes">
         <h1>
-          <RemoveCategory
-            noteDatabase={noteDatabase}
-            setNoteDatabase={setNoteDatabase}
-            category={category}
+          <Remove
+            type="category"
+            index={null}
+            setDeletionState={setDeletionState}
           />
           {category}
         </h1>
@@ -94,11 +92,10 @@ function CategoryNotes({ show, category, noteDatabase, setNoteDatabase }) {
           {noteDatabase[category].map((e, i) => (
             <li key={i}>
               <div className="note-title">
-                <RemoveItem
-                  noteDatabase={noteDatabase}
-                  setNoteDatabase={setNoteDatabase}
-                  category={category}
+                <Remove
+                  type="item"
                   index={i}
+                  setDeletionState={setDeletionState}
                 />
                 <p>{e.title}</p>
                 <NoteIcon
@@ -106,46 +103,43 @@ function CategoryNotes({ show, category, noteDatabase, setNoteDatabase }) {
                   setshownote={() => toggleNote(i)}
                 />
               </div>
-              {shownoteStates[i] ? (
+              {shownoteStates[i] && (
                 <p className={`${testLanguage(e.note)}`}>{e.note}</p>
-              ) : (
-                ""
               )}
             </li>
           ))}
         </ul>
+        {deletionState.show && (
+          <ConfirmDeleting
+            deletionState={deletionState}
+            setDeletionState={setDeletionState}
+            noteDatabase={noteDatabase}
+            setNoteDatabase={setNoteDatabase}
+            category={category}
+          />
+        )}
       </div>
     )
   );
 }
 
-// com_ contain Icon to remove item
-function RemoveItem({ noteDatabase, setNoteDatabase, category, index }) {
+/**************** REMOVE ****************/
+function Remove({ type, index, setDeletionState }) {
+  function handelDeletion() {
+    if (type == "item") {
+      setDeletionState({ show: true, type: "item", index: index });
+    } else {
+      setDeletionState({ show: true, type: "category", index: null });
+    }
+  }
   return (
-    <div
-      className="remove"
-      onClick={() => {
-        removeItem(noteDatabase, setNoteDatabase, category, index);
-      }}
-    >
+    <div className="remove" onClick={handelDeletion}>
       <FaTrashRestore />
     </div>
   );
 }
 
-//com_ contain icon to remove category
-function RemoveCategory({ noteDatabase, setNoteDatabase, category }) {
-  return (
-    <div
-      className="remove"
-      onClick={() => removeCategory(noteDatabase, setNoteDatabase, category)}
-    >
-      <FaTrashRestore />
-    </div>
-  );
-}
-
-// com_ show Icon in li
+/**************** NOTE ICON TOGGLE ****************/
 function NoteIcon({ shownote, setshownote }) {
   return (
     <div className="note-icon" onClick={setshownote}>
@@ -154,30 +148,59 @@ function NoteIcon({ shownote, setshownote }) {
   );
 }
 
-/************************************** */
-/************** functions ***************/
+/**************** CONFIRM DELETING MODAL ****************/
+function ConfirmDeleting({
+  deletionState,
+  setDeletionState,
+  noteDatabase,
+  setNoteDatabase,
+  category,
+}) {
+  const handleDelete = () => {
+    if (deletionState.type === "item") {
+      removeItem(noteDatabase, setNoteDatabase, category, deletionState.index);
+    } else {
+      removeCategory(noteDatabase, setNoteDatabase, category);
+    }
+    setDeletionState({ show: false, type: "", index: null });
+  };
 
-// function Remove item
+  return (
+    <div className="confirm-deleting">
+      <p>Are you sure you want to delete this?</p>
+      <div className="toggle">
+        <button
+          className="cancel"
+          onClick={() =>
+            setDeletionState({ show: false, type: "", index: null })
+          }
+        >
+          Cancel
+        </button>
+        <button className="sure" onClick={handleDelete}>
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**************** REMOVE ITEM FUNCTION ****************/
 function removeItem(noteDatabase, setNoteDatabase, category, index) {
   if (!Array.isArray(noteDatabase[category])) return;
-
   const newNoteDatabase = { ...noteDatabase };
   newNoteDatabase[category] = newNoteDatabase[category].filter(
     (_, i) => i !== index
   );
-
   localStorage.setItem("noteDatabase", JSON.stringify(newNoteDatabase));
   setNoteDatabase(newNoteDatabase);
 }
 
-// function Remove category
+/**************** REMOVE CATEGORY FUNCTION ****************/
 function removeCategory(noteDatabase, setNoteDatabase, category) {
   if (!noteDatabase[category]) return;
-
   const newNoteDatabase = { ...noteDatabase };
-
   delete newNoteDatabase[category];
-
   localStorage.setItem("noteDatabase", JSON.stringify(newNoteDatabase));
   setNoteDatabase(newNoteDatabase);
 }
