@@ -4,6 +4,8 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowUp } from "react-icons/io";
 import { ShowCategory } from "./AddingNote";
 import { FaTrashRestore } from "react-icons/fa";
+import { MdModeEditOutline } from "react-icons/md";
+import { IoIosCloseCircle } from "react-icons/io";
 
 function ShowNotes() {
   const [show, setShow] = useState(false);
@@ -92,11 +94,19 @@ function CategoryNotes({ show, category, noteDatabase, setNoteDatabase }) {
           {noteDatabase[category].map((e, i) => (
             <li key={i}>
               <div className="note-title">
-                <Remove
-                  type="item"
-                  index={i}
-                  setDeletionState={setDeletionState}
-                />
+                <div className="operations">
+                  <Remove
+                    type="item"
+                    index={i}
+                    setDeletionState={setDeletionState}
+                  />
+                  <Edit
+                    category={category}
+                    index={i}
+                    noteDatabase={noteDatabase}
+                    setNoteDatabase={setNoteDatabase}
+                  />
+                </div>
                 <p>{e.title}</p>
                 <NoteIcon
                   shownote={shownoteStates[i] || false}
@@ -135,6 +145,70 @@ function Remove({ type, index, setDeletionState }) {
   return (
     <div className="remove" onClick={handelDeletion}>
       <FaTrashRestore />
+    </div>
+  );
+}
+
+/**************** EDIT ****************/
+
+function Edit({ category, index, noteDatabase, setNoteDatabase }) {
+  const [window, setWindow] = useState(false);
+  const [newnote, setnewnote] = useState({ title: "", note: "" });
+
+  const handleEdit = (e) => {
+    e.preventDefault();
+
+    const updatedDatabase = { ...noteDatabase };
+    updatedDatabase[category][index] = newnote;
+
+    localStorage.setItem("noteDatabase", JSON.stringify(updatedDatabase));
+    setNoteDatabase(updatedDatabase); // assuming you have a setter like useState
+    setnewnote({ title: "", note: "" });
+    setWindow(false);
+  };
+  return (
+    <div className="Edit">
+      <MdModeEditOutline
+        onClick={() => {
+          setWindow(true);
+        }}
+      />
+      {window && (
+        <div className="edit-window">
+          <form>
+            <div className="close" onClick={() => setWindow(false)}>
+              <IoIosCloseCircle />
+            </div>
+            <h2>Edit Note</h2>
+            <label htmlFor="title">Title:</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              onChange={(event) => {
+                setnewnote({ ...newnote, title: event.target.value });
+              }}
+              value={newnote.title}
+            />
+            <label htmlFor="note">Note:</label>
+            <textarea
+              id="note"
+              name="note"
+              onChange={(event) => {
+                setnewnote({ ...newnote, note: event.target.value });
+              }}
+              value={newnote.note}
+            ></textarea>
+            <input
+              type="submit"
+              onClick={(e) => {
+                handleEdit(e);
+              }}
+              value="Save"
+            />
+          </form>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,14 +1,6 @@
-import { useState } from "react";
 import { AddingNote } from "./assets/Components/AddingNote";
 import { ShowNotes } from "./assets/Components/ShowNotes";
-import {
-  BrowserRouter,
-  createBrowserRouter,
-  createHashRouter,
-  HashRouter,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter, HashRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 function App() {
   return (
